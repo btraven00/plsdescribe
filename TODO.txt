@@ -1,0 +1,5 @@
+[ ] integrate TTS with a flag
+[ ] support -o flag to output description to a file
+[ ] allow configuration file, per project plsdescribe.toml
+	[ ] with autodiscover
+[ ] allow context library
