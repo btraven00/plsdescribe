@@ -3,11 +3,6 @@ from PIL import Image
 import os
 import argparse
 
-# --- Configuration ---
-# IMPORTANT: Store your API key securely.
-# Using an environment variable is a good practice.
-# Or, you can paste it directly here for a quick test:
-# genai.configure(api_key="YOUR_API_KEY")
 try:
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 except KeyError:
@@ -34,22 +29,22 @@ except FileNotFoundError:
     print(f"Error: '{IMAGE}' not found. Make sure the image is in the same folder.")
     exit()
 
-# --- Load the Model ---
+# Load the model 
 # We are using the gemini-pro-vision model, which can handle both text and images.
+
 model = genai.GenerativeModel('models/gemini-2.5-pro')
 
 FIELD = "bioinformatics"
-PROMPT_BASE = f"You are an assistant to a data scientist, in the field of {FIELD}. Your task is to describe plots, with the bare minimum of interpretation. Goal is to enable accesibility features in data analysis tools."
+PROMPT_BASE = f"You are an assistant to a data scientist, in the field of {FIELD}. Your task is to describe plots, with minimal interpretation, unless explicitely asked otherwise. The goal is to enable accesibility features in data analysis tools. "
 
 #CONTEXT = "Additional context: the plot represents an UMAP embedding of different clusters for cell types."
-CONTEXT = "Additional context: the plot is a violin plot for RNA counts for different identities."
+CONTEXT = "Additional context: the plot is a violin plot for RNA counts for different identities. "
 
-
-print("verbosity level:", args.verbose)
 
 # This is the prompt. Be specific to get the best results.
+
 prompt_v1 = PROMPT_BASE + "Describe this plot in one clear and concise sentence." + CONTEXT
-prompt_v2 = PROMPT_BASE + "Describe the key characteristics of the clusters in this plot, focusing on their relative positions, sizes, and separation. Use a few bullet points for your description, no more than 4. " + CONTEXT
+prompt_v2 = PROMPT_BASE + "Describe the key characteristics of the clusters in this plot, focusing on their relative positions, sizes, and separation. Use four or less bullet points for your description. Enclose answer in <speak> tags, and use basic SSML tags to improve generation, but avoid html tags and <break> in particular." + CONTEXT
 
 match args.verbose:
     case 1:
