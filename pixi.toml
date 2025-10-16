@@ -1,7 +1,7 @@
 [workspace]
 channels = ["conda-forge", "bioconda", "https://repo.prefix.dev/almost-conductor"]
 name = "plsdescribe"
-platforms = ["osx-arm64"]
+platforms = ["osx-64", "osx-arm64"]
 version = "0.1.0"
 
 [tasks]
