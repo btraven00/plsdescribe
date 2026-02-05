@@ -6,7 +6,7 @@ Sends an image to Google Gemini, gets a text description back, and optionally sp
 
 ## Install
 
-Grab a binary from [Releases](./releases), or build from source:
+Grab a binary from [Releases](https://github.com/btraven00/plsdescribe/releases), or build from source:
 
 ```
 go build -o plsdescribe .
@@ -94,7 +94,7 @@ describe_image("umap.png", tts = TRUE)
 describe_plot(plot(1:10), tts = TRUE)
 ```
 
-`GEMINI_API_KEY` must be set in your environment. For TTS, Google Cloud credentials are also needed (see TTS setup below).
+`GEMINI_API_KEY` must be set in your environment. For TTS, Google Cloud credentials are also needed.
 
 ## Screen reader compatibility
 
