@@ -6,8 +6,8 @@ Description: Describe scientific plots using Google Gemini vision. Optionally
     speaks descriptions aloud via Google Cloud
     Text-to-Speech. Wraps the plsdescribe Go binary.
 License: MIT + file LICENSE
-URL: https://github.com/b/plsdescribe
-BugReports: https://github.com/b/plsdescribe/issues
+URL: https://github.com/btraven00/plsdescribe
+BugReports: https://github.com/btraven00/plsdescribe/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
