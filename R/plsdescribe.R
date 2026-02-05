@@ -1,20 +1,18 @@
 .binary_name <- function() "plsdescribe"
 
-.release_url <- function() {
-  name <- .binary_name()
-  base <- "https://github.com/b/plsdescribe/releases/download/nightly"
+.platform_suffix <- function() {
   os <- tolower(Sys.info()[["sysname"]])
   arch <- Sys.info()[["machine"]]
 
-  suffix <- if (os == "darwin" && arch == "arm64") {
-    "darwin-arm64"
-  } else if (os == "darwin") {
-    "darwin-amd64"
-  } else {
-    "linux-amd64"
-  }
+  goos <- if (os == "darwin") "darwin" else "linux"
+  goarch <- if (arch %in% c("arm64", "aarch64")) "arm64" else "amd64"
 
-  paste0(base, "/", name, "-", suffix)
+  paste0(goos, "-", goarch)
+}
+
+.release_url <- function() {
+  base <- "https://github.com/btraven00/plsdescribe/releases/download/nightly"
+  paste0(base, "/", .binary_name(), "-", .platform_suffix())
 }
 
 #' Find or download the plsdescribe binary
@@ -37,7 +35,19 @@ ensure_binary <- function() {
 
   if (!file.exists(dest)) {
     url <- .release_url()
-    message("Downloading plsdescribe from ", url)
+    if (interactive()) {
+      ans <- readline(paste0(
+        "plsdescribe binary not found. Download from:\n  ", url,
+        "\nand install to:\n  ", dest,
+        "\nProceed? [Y/n] "
+      ))
+      if (tolower(trimws(ans)) %in% c("n", "no")) {
+        stop("Download cancelled. Install the binary manually and add it to PATH.",
+             call. = FALSE)
+      }
+    } else {
+      message("Downloading plsdescribe from ", url)
+    }
     utils::download.file(url, dest, mode = "wb", quiet = TRUE)
     Sys.chmod(dest, "0755")
     message("Installed to ", dest)

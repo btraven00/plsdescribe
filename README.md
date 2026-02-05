@@ -1,12 +1,12 @@
 # plsdescribe
 
-Describe scientific plots using AI vision, designed for visually impaired researchers.
+Describe scientific plots using AI vision.
 
 Sends an image to Google Gemini, gets a text description back, and optionally speaks it aloud via Google Cloud TTS. Descriptions go to stdout so screen readers (VoiceOver, Orca) pick them up naturally.
 
 ## Install
 
-Grab a binary from [Releases](../../releases), or build from source:
+Grab a binary from [Releases](./releases), or build from source:
 
 ```
 go build -o plsdescribe .
