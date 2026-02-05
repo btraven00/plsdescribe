@@ -129,7 +129,7 @@ func main() {
 		prompt = promptBase + promptV1Suffix + " " + defaultContext
 	}
 	if *question != "" {
-		prompt += " " + *question
+		prompt += " The user has the following question about the plot: " + *question
 	}
 
 	// --- Initial description ---
