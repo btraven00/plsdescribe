@@ -37,8 +37,8 @@ model = genai.GenerativeModel('models/gemini-2.5-pro')
 FIELD = "bioinformatics"
 PROMPT_BASE = f"You are an assistant to a data scientist, in the field of {FIELD}. Your task is to describe plots, with minimal interpretation, unless explicitely asked otherwise. The goal is to enable accesibility features in data analysis tools. "
 
-#CONTEXT = "Additional context: the plot represents an UMAP embedding of different clusters for cell types."
-CONTEXT = "Additional context: the plot is a violin plot for RNA counts for different identities. "
+CONTEXT = "Additional context: the plot represents an UMAP embedding of different clusters for cell types."
+# CONTEXT = "Additional context: the plot is a violin plot for RNA counts for different identities. "
 
 
 # This is the prompt. Be specific to get the best results.
