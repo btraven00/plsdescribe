@@ -15,17 +15,14 @@ import (
 const (
 	// TODO: switch to "gemini-3-pro" when available in the API
 	model = "gemini-2.5-pro"
-	field = "bioinformatics"
 
-	promptBase = "You are an assistant to a data scientist, in the field of " + field + ". " +
-		"Your task is to describe plots, with minimal interpretation, unless explicitely asked otherwise. " +
-		"The goal is to enable accesibility features in data analysis tools. "
-
-	defaultContext = "Additional context: the plot represents an UMAP embedding of different clusters for cell types."
+	promptBase = "You are an assistant to a scientist. " +
+		"Your task is to describe plots, with minimal interpretation, unless explicitly asked otherwise. " +
+		"The goal is to enable accessibility features in data analysis tools. "
 
 	promptV1Suffix = "Describe this plot in one clear and concise sentence."
-	promptV2Suffix = "Describe the key characteristics of the clusters in this plot, focusing on their relative positions, sizes, and separation. " +
-		"Use four or less bullet points for your description. " +
+	promptV2Suffix = "Describe the key characteristics of this plot, focusing on structure, patterns, and notable features. " +
+		"Use four or fewer bullet points for your description. " +
 		"Enclose answer in <speak> tags, and use basic SSML tags to improve generation, but avoid html tags and <break> in particular."
 )
 
@@ -78,6 +75,7 @@ func main() {
 	imagePath := flag.String("f", "", "Image file to describe (required)")
 	verbose := flag.Bool("v", false, "Increase verbosity (detailed bullet points)")
 	question := flag.String("q", "", "A question to append")
+	contextFile := flag.String("context", "", "Path to a context file (txt, md) with additional information about the plot")
 	outputFile := flag.String("o", "description.txt", "Output file for the description")
 	tts := flag.Bool("tts", false, "Speak the description aloud via Google Cloud TTS")
 	interactive := flag.Bool("i", false, "Enter interactive session for follow-up questions")
@@ -121,12 +119,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Load optional context from file.
+	var extraContext string
+	if *contextFile != "" {
+		ctxData, err := os.ReadFile(*contextFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading context file: %v\n", err)
+			os.Exit(1)
+		}
+		extraContext = " Additional context: " + strings.TrimSpace(string(ctxData))
+	}
+
 	// Build initial prompt.
 	var prompt string
 	if *verbose {
-		prompt = promptBase + promptV2Suffix + " " + defaultContext
+		prompt = promptBase + promptV2Suffix + extraContext
 	} else {
-		prompt = promptBase + promptV1Suffix + " " + defaultContext
+		prompt = promptBase + promptV1Suffix + extraContext
 	}
 	if *question != "" {
 		prompt += " The user has the following question about the plot: " + *question
@@ -211,7 +220,7 @@ func main() {
 				line = strings.TrimSpace(strings.TrimSuffix(line, "/tts"))
 			}
 
-			followUp := promptBase + defaultContext +
+			followUp := promptBase + extraContext +
 				" Previous description: " + lastResponse +
 				" User question: " + line
 
