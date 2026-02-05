@@ -1,7 +1,7 @@
-BINARY_NAME <- "plsdescribe"
+.binary_name <- function() "plsdescribe"
 
-# GitHub release URL pattern per platform.
 .release_url <- function() {
+  name <- .binary_name()
   base <- "https://github.com/b/plsdescribe/releases/download/nightly"
   os <- tolower(Sys.info()[["sysname"]])
   arch <- Sys.info()[["machine"]]
@@ -14,7 +14,7 @@ BINARY_NAME <- "plsdescribe"
     "linux-amd64"
   }
 
-  paste0(base, "/", BINARY_NAME, "-", suffix)
+  paste0(base, "/", name, "-", suffix)
 }
 
 #' Find or download the plsdescribe binary
@@ -23,21 +23,22 @@ BINARY_NAME <- "plsdescribe"
 #' GitHub releases if not found.
 #'
 #' @return Path to the binary.
+#' @export
 ensure_binary <- function() {
-  # Check PATH
-  sys_path <- Sys.which(BINARY_NAME)
+  name <- .binary_name()
+
+  sys_path <- Sys.which(name)
   if (sys_path != "") return(unname(sys_path))
 
-  # Per-user cache (follows R / XDG conventions)
   cache_dir <- tools::R_user_dir("plsdescribe", which = "cache")
   if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
 
-  dest <- file.path(cache_dir, BINARY_NAME)
+  dest <- file.path(cache_dir, name)
 
   if (!file.exists(dest)) {
     url <- .release_url()
     message("Downloading plsdescribe from ", url)
-    download.file(url, dest, mode = "wb", quiet = TRUE)
+    utils::download.file(url, dest, mode = "wb", quiet = TRUE)
     Sys.chmod(dest, "0755")
     message("Installed to ", dest)
   }
@@ -63,7 +64,6 @@ describe_image <- function(image_path, verbose = FALSE, question = NULL, tts = F
   if (tts)     args <- c(args, "-tts")
   if (!is.null(question) && nzchar(question)) args <- c(args, "-q", question)
 
-  # Suppress file output when called from R.
   tmp_out <- tempfile("plsdesc_", fileext = ".txt")
   on.exit(unlink(tmp_out), add = TRUE)
   args <- c(args, "-o", tmp_out)
@@ -94,14 +94,14 @@ describe_plot <- function(expr, verbose = FALSE, question = NULL, tts = FALSE,
   tmp_png <- tempfile("plot_", fileext = ".png")
   on.exit(unlink(tmp_png), add = TRUE)
 
-  png(filename = tmp_png, width = width, height = height)
+  grDevices::png(filename = tmp_png, width = width, height = height)
   tryCatch({
     result <- force(expr)
     if (inherits(result, "ggplot") || inherits(result, "trellis")) {
       print(result)
     }
   }, finally = {
-    dev.off()
+    grDevices::dev.off()
   })
 
   describe_image(tmp_png, verbose = verbose, question = question, tts = tts)

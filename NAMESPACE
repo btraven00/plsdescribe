@@ -1,0 +1,3 @@
+export(describe_image)
+export(describe_plot)
+export(ensure_binary)

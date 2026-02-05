@@ -1,0 +1,11 @@
+^\.github$
+^\.claude$
+^\.gitignore$
+^\.gitattributes$
+^\.envrc$
+^go\.mod$
+^go\.sum$
+^.*\.go$
+^plsdescribe$
+^.*\.png$
+^README\.md$
