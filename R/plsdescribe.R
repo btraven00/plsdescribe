@@ -64,14 +64,17 @@ ensure_binary <- function() {
 #' @param tts        Logical. Speak the description via Google Cloud TTS
 #'                   instead of returning text. Keeps stdout silent so it
 #'                   won't collide with a screen reader.
+#' @param tts_rate   Numeric. TTS speaking rate (0.25–2.0, 0 = default).
 #' @return Character vector of the description (invisibly when tts = TRUE).
 #' @export
-describe_image <- function(image_path, verbose = FALSE, question = NULL, tts = FALSE) {
+describe_image <- function(image_path, verbose = FALSE, question = NULL,
+                           tts = FALSE, tts_rate = 0) {
   bin <- ensure_binary()
 
   args <- c("-f", image_path)
   if (verbose) args <- c(args, "-v")
   if (tts)     args <- c(args, "-tts")
+  if (tts_rate > 0) args <- c(args, "-tts-rate", as.character(tts_rate))
   if (!is.null(question) && nzchar(question)) args <- c(args, "-q", question)
 
   tmp_out <- tempfile("plsdesc_", fileext = ".txt")
@@ -95,12 +98,13 @@ describe_image <- function(image_path, verbose = FALSE, question = NULL, tts = F
 #' @param verbose    Logical. Use detailed description.
 #' @param question   Optional question about the plot.
 #' @param tts        Logical. Speak instead of returning text.
+#' @param tts_rate   Numeric. TTS speaking rate (0.25–2.0, 0 = default).
 #' @param width      PNG width in pixels.
 #' @param height     PNG height in pixels.
 #' @return Character vector of the description.
 #' @export
 describe_plot <- function(expr, verbose = FALSE, question = NULL, tts = FALSE,
-                          width = 800, height = 600) {
+                          tts_rate = 0, width = 800, height = 600) {
   tmp_png <- tempfile("plot_", fileext = ".png")
   on.exit(unlink(tmp_png), add = TRUE)
 
@@ -114,5 +118,6 @@ describe_plot <- function(expr, verbose = FALSE, question = NULL, tts = FALSE,
     grDevices::dev.off()
   })
 
-  describe_image(tmp_png, verbose = verbose, question = question, tts = tts)
+  describe_image(tmp_png, verbose = verbose, question = question, tts = tts,
+                 tts_rate = tts_rate)
 }

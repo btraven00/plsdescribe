@@ -78,9 +78,28 @@ func main() {
 	contextFile := flag.String("context", "", "Path to a context file (txt, md) with additional information about the plot")
 	outputFile := flag.String("o", "description.txt", "Output file for the description")
 	tts := flag.Bool("tts", false, "Speak the description aloud via Google Cloud TTS")
+	ttsRate := flag.Float64("tts-rate", 0, "TTS speaking rate (0.25–2.0, 0 = default)")
+	ttsProxy := flag.String("tts-proxy", "", "TTS proxy URL (env: TTS_PROXY_URL)")
+	ttsToken := flag.String("tts-token", "", "TTS proxy bearer token (env: TTS_PROXY_TOKEN)")
 	interactive := flag.Bool("i", false, "Enter interactive session for follow-up questions")
 
 	flag.Parse()
+
+	// Populate TTS config from flags, falling back to env vars.
+	ttsConf.rate = *ttsRate
+	ttsConf.proxyURL = *ttsProxy
+	if ttsConf.proxyURL == "" {
+		ttsConf.proxyURL = os.Getenv("TTS_PROXY_URL")
+	}
+	ttsConf.proxyToken = *ttsToken
+	if ttsConf.proxyToken == "" {
+		ttsConf.proxyToken = os.Getenv("TTS_PROXY_TOKEN")
+	}
+
+	if ttsConf.rate != 0 && (ttsConf.rate < 0.25 || ttsConf.rate > 2.0) {
+		fmt.Fprintln(os.Stderr, "Error: -tts-rate must be between 0.25 and 2.0 (or 0 for default).")
+		os.Exit(1)
+	}
 
 	if *imagePath == "" {
 		fmt.Fprintln(os.Stderr, "Error: -f (image file) is required.")

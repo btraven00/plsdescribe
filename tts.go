@@ -10,6 +10,13 @@ import (
 	"strings"
 )
 
+// ttsConf holds TTS settings populated once in main().
+var ttsConf struct {
+	proxyURL   string
+	proxyToken string
+	rate       float64
+}
+
 var (
 	spaceCollapser = regexp.MustCompile(`\s+`)
 	markdownBullet = regexp.MustCompile(`(?m)^\s*[\*\-•]\s*`)
@@ -57,18 +64,25 @@ func cleanForTTS(text string) string {
 	return text
 }
 
+// newSynthesizer returns the appropriate synthesizer based on ttsConf.
+func newSynthesizer(ctx context.Context) (synthesizer, error) {
+	if ttsConf.proxyURL != "" {
+		return newProxyTTSClient(ttsConf.proxyURL, ttsConf.proxyToken), nil
+	}
+	return newTTSClient(ctx)
+}
+
 func speakText(text string) error {
 	ssml := cleanForTTS(text)
 
 	ctx := context.Background()
-	client, err := newTTSClient(ctx)
+	synth, err := newSynthesizer(ctx)
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer synth.Close()
 
-
-	mp3Data, err := client.Synthesize(ctx, ssml)
+	mp3Data, err := synth.Synthesize(ctx, ssml, ttsConf.rate)
 	if err != nil {
 		return err
 	}

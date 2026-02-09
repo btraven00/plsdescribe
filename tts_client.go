@@ -10,6 +10,13 @@ import (
 	"google.golang.org/api/option"
 )
 
+// synthesizer abstracts TTS backends so the CLI can use either the direct
+// Google Cloud client or an HTTP proxy transparently.
+type synthesizer interface {
+	Synthesize(ctx context.Context, ssml string, rate float64) ([]byte, error)
+	Close() error
+}
+
 // ttsClient wraps the Google Cloud TTS client.
 type ttsClient struct {
 	inner *texttospeech.Client
@@ -32,7 +39,15 @@ func (c *ttsClient) Close() error {
 }
 
 // Synthesize converts SSML text to MP3 audio bytes.
-func (c *ttsClient) Synthesize(ctx context.Context, ssml string) ([]byte, error) {
+// rate controls speaking speed (0.25–2.0); 0 means default (1.0).
+func (c *ttsClient) Synthesize(ctx context.Context, ssml string, rate float64) ([]byte, error) {
+	audioCfg := &texttospeechpb.AudioConfig{
+		AudioEncoding: texttospeechpb.AudioEncoding_MP3,
+	}
+	if rate > 0 {
+		audioCfg.SpeakingRate = rate
+	}
+
 	resp, err := c.inner.SynthesizeSpeech(ctx, &texttospeechpb.SynthesizeSpeechRequest{
 		Input: &texttospeechpb.SynthesisInput{
 			InputSource: &texttospeechpb.SynthesisInput_Ssml{Ssml: ssml},
@@ -41,9 +56,7 @@ func (c *ttsClient) Synthesize(ctx context.Context, ssml string) ([]byte, error)
 			LanguageCode: "en-US",
 			Name:         "en-US-Wavenet-F",
 		},
-		AudioConfig: &texttospeechpb.AudioConfig{
-			AudioEncoding: texttospeechpb.AudioEncoding_MP3,
-		},
+		AudioConfig: audioCfg,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("synthesizing speech: %w", err)
