@@ -1,4 +1,4 @@
-# plsdescribe
+# visionary
 
 Describe scientific plots using AI vision.
 
